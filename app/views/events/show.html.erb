@@ -1,0 +1,56 @@
+<div id="header_1">
+  <% if current_user %>
+    <p>Welcome, <%= current_user.first_name %> <%= current_user.last_name %></p>
+  <% end %>
+</div>
+
+<div id="header_2">
+  <% if current_user %>
+    <%= link_to "Event Dashboard", events_path %>
+    <%= link_to "Logout", session_path(current_user), :method => :delete %>
+  <% end %>
+</div>
+
+<p><%= @event.name %>
+<p>Host: <%= @event.user.first_name %> <%= @event.user.last_name %> </p>
+<p>Date: <%= @event.event_date %> </p>
+<p>Location: <%= @event.location %> </p>
+
+<p>People who are joining the event: <%= @event.attendings.count %>
+
+<table>
+  <thead>
+      <th>Name</th>
+      <th>Location</th>
+      <th>State</th>
+  </thead>
+
+  <% @event.users.each do |user| %>
+  <tr>
+      <td><%= user.first_name %> <%=user.last_name %></td>
+      <td><%= user.location %></td>
+      <td><%= user.state %></td>
+  </tr>
+  <% end %>
+</table>
+
+<br>
+<br>
+
+<p>Discussions about this event: </p>
+<br>
+<% @event.comments.each do |comment| %>
+  <p><%= comment.user.first_name %> says: <%= comment.comment %></p>
+  <p>----------</p>
+<% end %>
+<br>
+
+<h3>Add Comment</h3>
+<form action='/comments' method='POST'>
+    <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+    <input name="comment[event_id]" value="<%=@event.id%>" type="hidden">
+    <input name="comment[user_id]" value="<%=current_user.id%>" type="hidden">
+
+    <label for="comment[comment]">Name:</label><input type="text" name="comment[comment]" value=""><br>
+    <input type="submit" value="Add Comment" class="buttons">
+</form>

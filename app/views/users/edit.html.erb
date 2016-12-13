@@ -1,0 +1,42 @@
+<div id="header_1">
+</div>
+
+<div id="header_2">
+  <% if current_user %>
+    <%= link_to "Event Dashboard", events_path %>
+    <%= link_to "Logout", session_path(current_user), :method => :delete %>
+  <% end %>
+</div>
+
+<br>
+<br>
+
+
+<form action='/users/<%=@user.id%>' method='POST'>
+  <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+  <input type='hidden' name='_method' value='PUT'>
+  <label for="user[first_name]">First Name:</label><input type="text" name="user[first_name]" value="<%= @user.first_name%>"><br>
+  <label for="user[last_name]">Last Name:</label><input type="text" name="user[last_name]" value="<%= @user.last_name%>"><br>
+  <label for="user[email]">Email:</label><input type="text" name="user[email]" value="<%= @user.email %>"><br>
+  <label for="user[location]">Location:</label><input type="text" name="user[location]" value="<%= @user.location %>"><br>
+  <label for="user[state]">State:</label>
+
+  <select name="user[state]">
+  <% states.each do |state| %>
+    <% if @user.state == state.state %>
+      <option value ="<%=state.state%>" selected="selected"><%=state.state%></option>
+    <% else %>
+      <option value ="<%=state.state%>"><%=state.state%></option>
+    <% end %>
+  <% end %>
+  </select>
+  <br>
+
+  <input type="submit" value="Update" class="buttons">
+</form>
+
+<% if flash[:errors] %>
+  <% flash[:errors].each do |msg| %>
+    <p> <%= msg %></p>
+  <% end %>
+<% end %>

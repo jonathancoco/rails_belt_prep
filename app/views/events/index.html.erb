@@ -1,0 +1,111 @@
+<div id="header_1">
+  <% if current_user %>
+    <p>Welcome, <%= current_user.first_name %> <%= current_user.last_name %></p>
+  <% end %>
+</div>
+
+<div id="header_2">
+  <% if current_user %>
+    <%= link_to "Edit My Profile", edit_user_path(current_user) %>
+    <%= link_to "Logout", session_path(current_user), :method => :delete %>
+  <% end %>
+</div>
+<br>
+<br>
+
+<h3>Here are some of the events in your state</h3>
+
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Location</th>
+        <th>Host</th>
+        <th>Action/Status</th>
+    </thead>
+    <% @all_events_in_state.each do |event| %>
+    <tr>
+        <td><%= link_to event.name, event_path(event) %>
+        <td><%= event.event_date %></td>
+        <td><%= event.location %></td>
+        <td><%= event.user.first_name %></td>
+        <td>
+
+          <% if event.user == current_user %>
+              <%= link_to "Edit", event_path(event) %>
+              <%= link_to "Delete" , event_path(event), :method => :delete  %>
+              |
+          <% end %>
+          <% if event.attendings.find_by(user_id:current_user) %>
+              Joining <%= link_to "Cancel", attending_path(event.attendings.find_by(user_id:current_user)), :method => :delete  %>
+          <% else %>
+            <%= link_to "Join", attendings_path(:attend => {:event_id => event.id, :user_id =>current_user.id}), :method => :post %>
+          <% end %>
+
+        </td>
+      </tr>
+    <% end %>
+</table>
+
+<br>
+
+<h3>Here are some of the events in other states</h3>
+
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Location</th>
+        <th>Host</th>
+        <th>Action/Status</th>
+    </thead>
+    <% @all_events_out_state.each do |event| %>
+    <tr>
+        <td><%= link_to event.name, event_path(event) %></td>
+        <td><%= event.event_date %></td>
+        <td><%= event.location %></td>
+        <td><%= event.user.first_name %></td>
+        <td>
+          <% if event.user == current_user %>
+              <%= link_to "Edit", event_path(event) %>
+              <%= link_to "Delete" , event_path(event), :method => :delete  %>
+              |
+          <% end %>
+
+          <% if event.attendings.find_by(user_id:current_user) %>
+              Joining <%= link_to "Cancel", attending_path(event.attendings.find_by(user_id:current_user)), :method => :delete  %>
+          <% else %>
+            <%= link_to "Join", attendings_path(:attend => {:event_id => event.id, :user_id =>current_user.id}), :method => :post %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+</table>
+<br>
+
+<h3>Add Event</h3>
+<form action='/events' method='POST'>
+    <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+    <label for="event[name]">Name:</label><input type="text" name="event[name]" value="<%=flash[:name]%>"><br>
+    <label for="event[event_date]">Date:</label><input type="date" name="event[event_date]" value="<%=flash[:date]%>"><br>
+    <label for="event[location]">Location:</label><input type="text" name="event[location]" value="<%=flash[:location]%>"><br>
+    <label for="event[state]">State:</label>
+    <select name="event[state]">
+    <% states.each do |state| %>
+      <% if state.state == flash[:state] %>
+        <option value ="<%=state.state%>" selected="selected"><%=state.state%></option>
+      <% else %>
+        <option value ="<%=state.state%>"><%=state.state%></option>
+      <% end %>
+    <% end %>
+    </select>
+    <br>
+
+    <input type="submit" value="Add Event" class="buttons">
+</form>
+
+<% if flash[:errors] %>
+  <% flash[:errors].each do |msg| %>
+    <p> <%= msg %></p>
+  <% end %>
+<% end %>
